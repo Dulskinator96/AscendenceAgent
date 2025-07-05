@@ -1,0 +1,6 @@
+services:
+  - type: web
+    name: ascendence-agent
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python web/dashboard.py
