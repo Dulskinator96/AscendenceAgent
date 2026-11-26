@@ -1,6 +1,6 @@
 # FSO coordination — active task and AI handoff
 
-**As of:** 2026-11-25 | **Task:** IDB Activity 1.2 / Lab 1 | **Status:** IN PROGRESS; Q2 observed PASS; Q3–Q6, final export and submission pending.
+**As of:** 2026-11-25 | **Task:** IDB Activity 1.2 / Lab 1 | **Status:** IN PROGRESS; D-008 final gate observed PASS; COMMIT, final export, Word and submission pending evidence.
 **Use:** [coordination ADR](../docs/adr/0002-fso-coordination.md) · [existing branch handoff](FSO-ASSIGNMENT-HANDOFF.md).
 This is a branch-local coordination record, not a merged academic archive.
 
@@ -9,9 +9,84 @@ When the operator says "relook", refresh this file at the current FSO-assignment
 
 For a SQL dispatch, return the exact supplied runnable SQL in one code block and one short execution instruction. Do not recap the assignment or ask for previously completed setup, unavailable drafts or additional research. If the operator has already executed the dispatch, collect its actual outcome rather than replaying it. After receiving results, append the requested compact evidence report to FSO/FSO-REPORT.md; preserve prior reports and verify the commit. If a report is already present for that execution, do not duplicate it. If blocked, report the exact redacted error. Do not change coordination instructions or other files.
 
-Current state: Q2 observed PASS; D-006 showed 2 emails, 1 phone, occupation lookup 187, but Q6 blocked. D-008 immediately below is the only active recovery and finalization order. D-007 and earlier orders are historical; do not replay them. No new mutation is authorized by this protocol itself. Future coordinator orders will be inserted immediately below this protocol; historical dispatches are inactive. If a completed dispatch has no successor, report its status without rerunning it. Keep responses concise to conserve context. No automatic inter-chat messaging is implied; "relook" is the manual refresh trigger.
+Current state: D-008 final gate observed PASS, Q2 and contact/occupation postconditions verified in the recovery session. D-009 immediately below is the only active order: commit, export, finish Word and submit. Do not replay D-008 or earlier mutations. No new mutation is authorized by this protocol itself. Future coordinator orders will be inserted immediately below this protocol; historical dispatches are inactive. If a completed dispatch has no successor, report its status without rerunning it. Keep responses concise to conserve context. No automatic inter-chat messaging is implied; "relook" is the manual refresh trigger.
+
+## ACTIVE DISPATCH D-009 — commit, export, complete Word and submit (2026-11-25)
+
+**Read only this order.** D-008 completed in the operator's Workbench screenshot at 23:10:35: base_ok=1, contacts_recreated=0, delete_attempted=0, phone_pass=1, emails_final=2, phones_final=1, ready_to_commit=1. UPDATE occupation affected 1 row, association SELECT returned 1 row. Earlier D-006 proved two phones before deletion and one afterward; exact original DELETE affected count not shown. Recovery DELETE affected 0, correctly avoiding a second deletion. Workbench warning 1739 is visible (index-access warning); final gate passed. Q4 count is not visible in this photo. No COMMIT or export observed yet.
+
+**Field agent reply immediately with the SQL below and the three completion steps. No questions, research, or replay of INSERT/DELETE/UPDATE.** Run in the same lab Workbench connection used for D-008. The command assumes no unrelated pending work in that lab session. The student must review and follow course policy.
+
+```sql
+COMMIT;
+SET SESSION autocommit = @lab_saved_autocommit;
+
+USE example1512O;
+SELECT userid, username, created, occupationId
+FROM users WHERE userid = 'LAB1_DEMO_1125';
+SELECT COUNT(*) AS emails_final FROM userEmail
+WHERE userId = 'LAB1_DEMO_1125';
+SELECT COUNT(*) AS phones_final FROM userPhone
+WHERE userId = 'LAB1_DEMO_1125';
+SELECT COUNT(*) AS mary_join_rows
+FROM users u JOIN userEmail e ON u.userid = e.userId
+WHERE u.firstname = 'mary';
+```
+
+1. **Q1 — export:** Workbench Server > Data Export; select example1512O and all tables, Dump Structure and Data, Export to Self-Contained File; include triggers and relevant stored routines/events. Save a new file in the existing output directory, e.g. IDBLab1_Final.sql. Start Export. Verify success and nonzero file size. ZIP this SQL file if the current LMS requires a ZIP. Do not overwrite the instructor source.
+2. **Word worksheet:** Open a working copy of the original IDBLab1.doc; fill the student's name locally. Paste the following concise equivalent SQL under Q2–Q6. These answers remove the execution-only guards and substitute the observed lab user and occupation ID. They are equivalent worksheet answers for the observed workflow, not verbatim execution logs; do NOT run them again. Preserve actual guarded SQL in D-005/D-006/D-008 and local Workbench history. For Q1 refer to the actual exported file only once it exists.
+
+Q2:
+```sql
+INSERT INTO users
+(userid, firstname, lastname, middleName, username, gender, userStatusId, userTypeId)
+VALUES ('LAB1_DEMO_1125','Alex','Example','T','lab1_demo_1125','M',1,1);
+```
+Observed generated created: 2026-11-25 23:04:40.
+
+Q3:
+```sql
+INSERT INTO userEmail (userId,userEmail,userEmailTypeId)
+VALUES ('LAB1_DEMO_1125','lab1.demo.personal@example.com',1);
+INSERT INTO userEmail (userId,userEmail,userEmailTypeId)
+VALUES ('LAB1_DEMO_1125','lab1.demo.school@example.com',3);
+INSERT INTO userPhone (userId,userPhone,userPhoneTypeId)
+VALUES ('LAB1_DEMO_1125','555-0101',1);
+INSERT INTO userPhone (userId,userPhone,userPhoneTypeId)
+VALUES ('LAB1_DEMO_1125','555-0102',2);
+```
+
+Q4:
+```sql
+SELECT u.lastname AS lastName,u.firstname AS firstName,
+       u.username AS userName,e.userEmail
+FROM users AS u INNER JOIN userEmail AS e ON u.userid=e.userId
+WHERE u.firstname='mary';
+```
+
+Q5:
+```sql
+DELETE FROM userPhone
+WHERE userId='LAB1_DEMO_1125' AND userPhone='555-0102'
+  AND userPhoneTypeId=2 LIMIT 1;
+```
+
+Q6:
+```sql
+SELECT * FROM occupation
+WHERE occupation='Computer Software Engineers';
+UPDATE users SET occupationId=187
+WHERE userid='LAB1_DEMO_1125' LIMIT 1;
+```
+
+3. **Submit:** Review the completed worksheet and live-export dump, confirm required LMS formats, upload both, and check receipt. Restore verification is optional additional QA, not an explicit worksheet requirement; mark NOT RUN if not performed. No fabricated submission or grade.
+
+**Report:** Append one concise 5W D-009 report to FSO/FSO-REPORT.md covering actual commit outcome, post-commit verification, Mary join count, export filename/size/format, Word completed status, receipt and remaining blockers. Do not publish actual student name, proprietary documents or raw personal rows. If report write unavailable, return it in chat. No other repository writes. Prior orders are historical.
 
 ## ACTIVE DISPATCH D-008 — deliver recovery SQL immediately (2026-11-25)
+> Historical status before D-009: **Status:** IN PROGRESS; Q2 observed PASS; Q3–Q6, final export and submission pending.
+> Current state: Q2 observed PASS; D-006 showed 2 emails, 1 phone, occupation lookup 187, but Q6 blocked. D-008 immediately below is the only active recovery and finalization order. D-007 and earlier orders are historical; do not replay them.
+
 
 **Only this order is active.** RELOOK response: output the complete SQL below in your first reply, followed by the commit and finalization instructions. Do not ask whether D-006 was committed or rolled back; this command handles either state. Do not ask for prior context, drafts, setup, or schema details unless an actual execution error occurs. The operator runs the SQL in the existing lab Workbench connection. If already completed, report results instead of repeating it.
 
