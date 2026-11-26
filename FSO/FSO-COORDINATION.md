@@ -11,6 +11,164 @@ For a SQL dispatch, return the exact supplied runnable SQL in one code block and
 
 Current state: database access and required tables/trigger observed; Q2 execution is still unverified. D-005 below remains the active order. No new mutation is authorized by this protocol itself. Future coordinator orders will be inserted immediately below this protocol; historical dispatches are inactive. If a completed dispatch has no successor, report its status without rerunning it. Keep responses concise to conserve context. No automatic inter-chat messaging is implied; "relook" is the manual refresh trigger.
 
+## ACTIVE DISPATCH D-006 — complete ALL remaining IDB Lab 1 requirements (2026-11-25)
+
+**Read only this order.** This supersedes the old D-005 status in the RELOOK protocol. Coordinator observed Workbench screenshot: D-005/Q2 INSERT affected 1 row, duplicates 0, warnings 0, SELECT returned LAB1_DEMO_1125 / Alex Example / lab1_demo_1125 with created 2026-11-25 23:04:40. Q2 PASS; do not repeat. No further schema discovery or context loading unless a real error requires it. Use this same fictional lab user throughout. No new identity.
+
+**Field agent:** output the entire remaining SQL block verbatim and the short finalization steps below in one response. User runs the SQL in the existing Workbench connection and reviews the result. Do not wait for a fresh coordinator dispatch between questions. Only stop for errors or unmet checks. Follow the current course AI-use policy. The SQL below is engineered from the recovered draft, not yet executed; contact lookup table names/IDs are source-based candidates and must resolve successfully. Do not silently change the commands.
+
+### Remaining SQL — Q3, Q4, Q5, Q6
+Run once, in order, in the same Workbench connection. Do not run again after a successful commit. Stop on the first SQL error; if the transaction is open, ROLLBACK rather than committing partial work. Require all three mutated tables to be InnoDB for transactional protection. Initial gate requires the intended Q2 row and no existing contact rows for it, so an unexpected existing state blocks mutations rather than duplicating contacts.
+
+```sql
+USE example1512O;
+START TRANSACTION;
+
+SET @lab_user = 'LAB1_DEMO_1125';
+SET @q3_ready = 0, @q3_ok = 0, @deleted_rows = 0,
+    @occupation_matches = 0, @occupation_id = NULL;
+
+SELECT COUNT(*) = 1
+INTO @user_ok
+FROM users
+WHERE userid = @lab_user AND username = 'lab1_demo_1125'
+  AND created IS NOT NULL;
+
+SELECT (
+    @user_ok = 1
+    AND @@SESSION.foreign_key_checks = 1
+    AND (SELECT COUNT(*) FROM information_schema.TABLES
+         WHERE TABLE_SCHEMA = DATABASE()
+           AND TABLE_NAME IN ('users','userEmail','userPhone')
+           AND ENGINE = 'InnoDB') = 3
+    AND (SELECT COUNT(*) FROM userEmail WHERE userId = @lab_user) = 0
+    AND (SELECT COUNT(*) FROM userPhone WHERE userId = @lab_user) = 0
+    AND (SELECT COUNT(*) FROM userEmailType
+         WHERE userEmailTypeId IN (1,3)) = 2
+    AND (SELECT COUNT(*) FROM userPhoneType
+         WHERE userPhoneTypeId IN (1,2)) = 2
+) INTO @q3_ready;
+SELECT @q3_ready AS q3_preconditions_pass;
+
+-- Q3: four separate INSERT statements, omitting auto-increment IDs.
+INSERT INTO userEmail (userId, userEmail, userEmailTypeId)
+SELECT @lab_user, 'lab1.demo.personal@example.com', 1
+WHERE @q3_ready = 1;
+
+INSERT INTO userEmail (userId, userEmail, userEmailTypeId)
+SELECT @lab_user, 'lab1.demo.school@example.com', 3
+WHERE @q3_ready = 1;
+
+INSERT INTO userPhone (userId, userPhone, userPhoneTypeId)
+SELECT @lab_user, '555-0101', 1
+WHERE @q3_ready = 1;
+
+INSERT INTO userPhone (userId, userPhone, userPhoneTypeId)
+SELECT @lab_user, '555-0102', 2
+WHERE @q3_ready = 1;
+
+SELECT COUNT(*) AS emails_before_delete
+FROM userEmail WHERE userId = @lab_user;
+SELECT COUNT(*) AS phones_before_delete
+FROM userPhone WHERE userId = @lab_user;
+
+SELECT (
+    @q3_ready = 1
+    AND (SELECT COUNT(*) FROM userEmail WHERE userId = @lab_user) = 2
+    AND (SELECT COUNT(*) FROM userPhone WHERE userId = @lab_user) = 2
+    AND (SELECT COUNT(*) FROM userPhone
+         WHERE userId = @lab_user AND userPhone = '555-0102'
+           AND userPhoneTypeId = 2) = 1
+) INTO @q3_ok;
+
+-- Q4: exact four requested columns and filter.
+SELECT u.lastname AS lastName, u.firstname AS firstName,
+       u.username AS userName, e.userEmail
+FROM users AS u
+INNER JOIN userEmail AS e ON u.userid = e.userId
+WHERE u.firstname = 'mary';
+
+SELECT COUNT(*) AS mary_join_rows
+FROM users AS u
+INNER JOIN userEmail AS e ON u.userid = e.userId
+WHERE u.firstname = 'mary';
+
+-- Q5: delete exactly one of the newly inserted phones.
+DELETE FROM userPhone
+WHERE userId = @lab_user AND userPhone = '555-0102'
+  AND userPhoneTypeId = 2 AND @q3_ok = 1
+LIMIT 1;
+SET @deleted_rows = ROW_COUNT();
+SELECT @deleted_rows AS deleted_rows;
+
+SELECT COUNT(*) AS phones_after_delete
+FROM userPhone WHERE userId = @lab_user;
+
+-- Q6: select all occupation columns and resolve the live ID.
+SELECT * FROM occupation
+WHERE occupation = 'Computer Software Engineers';
+
+SELECT COUNT(*), MIN(occupationId)
+INTO @occupation_matches, @occupation_id
+FROM occupation
+WHERE occupation = 'Computer Software Engineers';
+
+UPDATE users
+SET occupationId = @occupation_id
+WHERE userid = @lab_user AND @q3_ok = 1
+  AND @deleted_rows = 1 AND @occupation_matches = 1
+LIMIT 1;
+
+SELECT u.userid, u.occupationId, o.occupation
+FROM users AS u
+INNER JOIN occupation AS o ON u.occupationId = o.occupationId
+WHERE u.userid = @lab_user;
+
+-- Final transaction acceptance check.
+SELECT @q3_ready AS preconditions_pass,
+       @q3_ok AS q3_pass_before_delete,
+       @deleted_rows AS deleted_rows,
+       @occupation_matches AS occupation_matches,
+       @occupation_id AS live_occupation_id,
+       (SELECT COUNT(*) FROM userEmail WHERE userId = @lab_user) AS emails_final,
+       (SELECT COUNT(*) FROM userPhone WHERE userId = @lab_user) AS phones_final,
+       (
+        @q3_ready = 1 AND @q3_ok = 1
+        AND @deleted_rows = 1 AND @occupation_matches = 1
+        AND (SELECT COUNT(*) FROM userEmail WHERE userId = @lab_user) = 2
+        AND (SELECT COUNT(*) FROM userPhone WHERE userId = @lab_user) = 1
+        AND (SELECT COUNT(*) FROM userPhone WHERE userId = @lab_user
+             AND userPhone = '555-0101') = 1
+        AND (SELECT COUNT(*) FROM users WHERE userid = @lab_user
+             AND occupationId = @occupation_id) = 1
+       ) AS ready_to_commit;
+```
+
+**Commit gate:** If every statement succeeded (including Q4), and ready_to_commit = 1, run `COMMIT;` in the same connection. If there is an error or ready_to_commit is 0/NULL, run `ROLLBACK;` in that connection, report the first error and summary output, and do not rerun blindly. Verify committed final rows with the existing final SELECTs only, not by repeating the mutations. The Workbench Action Output and result grids are evidence; merely displaying SQL is not a pass.
+
+### Finish Word document and Q1 — do not wait for another dispatch
+1. Q2 already passed. In a copy of the original IDBLab1.doc, enter the student's own name locally. Paste the actual successful D-005 Q2 INSERT below (not the older personal draft); the observed created timestamp is 2026-11-25 23:04:40. Include the relevant session setup/variables with the executed statements wherever needed so the answers are reproducible. Do not copy the precondition/reporting SQL as an alleged additional assignment requirement.
+```sql
+INSERT INTO users
+(userid, firstname, lastname, middleName,
+ username, gender, userStatusId, userTypeId)
+SELECT 'LAB1_DEMO_1125', 'Alex', 'Example', 'T',
+       'lab1_demo_1125', 'M', 1, 1
+WHERE @@SESSION.foreign_key_checks = 1
+  AND EXISTS (SELECT 1 FROM userStatus WHERE userStatusId = 1)
+  AND EXISTS (SELECT 1 FROM userType WHERE userTypeId = 1)
+  AND NOT EXISTS (
+      SELECT 1 FROM users
+      WHERE userid = 'LAB1_DEMO_1125' OR username = 'lab1_demo_1125'
+  );
+```
+2. Q3: paste the four executed INSERTs and necessary variable/precondition definitions. Q4: paste the exact four-column JOIN. Q5: paste the targeted DELETE with its necessary variable definitions. Q6: paste the occupation SELECT and the executed UPDATE with the observed occupation ID/lookup variable setup. Keep SQL and evidence consistent; use the real output, never fabricate an ID or row count. Original worksheet asks for SQL statements, not mandatory screenshots; retain evidence locally. Preserve original instructor file and review against the actual rubric.
+3. Q1: after successful COMMIT, Workbench Server > Data Export; choose example1512O, all tables, Dump Structure and Data, Export to Self-Contained File, include triggers and relevant stored routines/events where present. Save a new SQL export in the existing output folder. Start Export, check success and nonzero file size. Do not overwrite the instructor dump. Package the actual SQL export as ZIP if current LMS requires it; original worksheet accepts plain SQL. Independent restore is useful QA, not explicit worksheet requirement; do not risk the working database or delay submission solely for this optional check. Report restore NOT RUN if not performed.
+4. Confirm the Word file contains all six answers/required statements, name and correct fictional lab identity; verify final SQL dump is the live export, not the previously drafted derivative. Student reviews, follows course policy, uploads the two required deliverables and verifies LMS receipt. Do not claim submission unless observed.
+
+### Final field report
+Append one compact 5W report for D-006 to FSO/FSO-REPORT.md, including D-005/Q2 observed result, actual Q3 email/phone counts before deletion, Q4 four columns and count, Q5 affected count and surviving phone count, Q6 actual occupation ID and association, transaction committed/rolled back, Word completed status, SQL export size/format, restore status and LMS receipt status. If blocked, record exact redacted error and next single action. No raw personal result rows, student identifiers or course documents in Git. Verify report commit; if no write access, return report in chat. Do not duplicate historical handoffs. Coordinator may review after user requests it; no new dispatch needed between successful steps.
+
 ## ACTIVE DISPATCH D-005 — Q2 command delivery (2026-11-25)
 Read ONLY this section. D-004 is superseded because it required unavailable private values. The coordinator supplies fictional lab data below; the worksheet requires a new user, not the student's personal identity in the database. The student enters their own name in the Word worksheet separately. Use this same lab identity throughout Q2–Q6. Do not create another identity if an earlier Q2 was actually executed; report that case instead.
 
