@@ -4,6 +4,38 @@
 **Use:** [coordination ADR](../docs/adr/0002-fso-coordination.md) · [existing branch handoff](FSO-ASSIGNMENT-HANDOFF.md).
 This is a branch-local coordination record, not a merged academic archive.
 
+## ACTIVE DISPATCH D-005 — Q2 command delivery (2026-11-25)
+Read ONLY this section. D-004 is superseded because it required unavailable private values. The coordinator supplies fictional lab data below; the worksheet requires a new user, not the student's personal identity in the database. The student enters their own name in the Word worksheet separately. Use this same lab identity throughout Q2–Q6. Do not create another identity if an earlier Q2 was actually executed; report that case instead.
+
+**Field agent response:** reproduce the following SQL exactly in one code block, tell the operator to run it in the existing MySQL Workbench SQL editor, and request the result. Do not research, summarize, reconstruct, ask for a draft, or reload prior instructions. Schema access and the users INSERT trigger were already observed. No literal placeholders. Candidate lookup IDs are tested by the INSERT predicates below; the two lookup table names follow the conventional schema and are not yet runtime-confirmed. If either is missing or any SQL error occurs, report the exact redacted error; do not guess a replacement. The existing database must have foreign key checks enabled. No schema changes.
+
+```sql
+USE example1512O;
+
+INSERT INTO users
+(userid, firstname, lastname, middleName,
+ username, gender, userStatusId, userTypeId)
+SELECT
+ 'LAB1_DEMO_1125', 'Alex', 'Example',
+ 'T', 'lab1_demo_1125', 'M', 1, 1
+WHERE @@SESSION.foreign_key_checks = 1
+  AND EXISTS (SELECT 1 FROM userStatus WHERE userStatusId = 1)
+  AND EXISTS (SELECT 1 FROM userType WHERE userTypeId = 1)
+  AND NOT EXISTS (
+    SELECT 1 FROM users
+    WHERE userid = 'LAB1_DEMO_1125'
+       OR username = 'lab1_demo_1125'
+  );
+
+SELECT ROW_COUNT() AS inserted_rows;
+
+SELECT userid, firstname, lastname, username, created
+FROM users
+WHERE userid = 'LAB1_DEMO_1125';
+```
+
+**Report:** D-005, 5Ws in brief; actual inserted_rows, whether the exact intended row exists and created is populated, and any error. A zero-row insert is not new execution success; if the same intended row already exists, report existing row separately, otherwise BLOCKED. The student's Word answer must reflect the actual executed SQL, not the prior draft identity. Append to FSO/FSO-REPORT.md using fresh SHA and verify; if unable, return report in chat. No other file edits. Coordinator will issue the next command from actual results. Historical orders below are inactive.
+
 ## ACTIVE SQL DISPATCH — D-004 / Q2 (2026-11-25)
 
 **Field agent: output the preserved SQL block below, not an explanation or another research task.** Read only this section (stop at the next heading). Use the student's existing local draft to substitute the five private values marked LOCAL and the locally approved gender value; do not invent them or publish them in Git. Confirm status/type IDs 1 and 1 against the existing local schema/lookup evidence before execution; these are draft candidates, not verified runtime facts. If evidence is missing, request only the necessary lookup/column detail. Do not repeat import or the already-successful SHOW CREATE TABLE/SHOW TRIGGERS checks. Never execute literal placeholders. Paste the resulting command as one SQL block for the operator in MySQL Workbench.
