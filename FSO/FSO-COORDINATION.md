@@ -11,6 +11,122 @@ For a SQL dispatch, return the exact supplied runnable SQL in one code block and
 
 Current state: Q2 observed PASS. D-006 immediately below is the only active order, covering all remaining work. D-005 and earlier orders are historical; do not replay them. No new mutation is authorized by this protocol itself. Future coordinator orders will be inserted immediately below this protocol; historical dispatches are inactive. If a completed dispatch has no successor, report its status without rerunning it. Keep responses concise to conserve context. No automatic inter-chat messaging is implied; "relook" is the manual refresh trigger.
 
+## ACTIVE DISPATCH D-007 — recover final transaction and finish assignment (2026-11-25)
+
+**Only this order is active.** Coordinator observed Workbench photo at 23:07:06: preconditions_pass=1, q3_pass_before_delete=1, deleted_rows=-1, occupation_matches=1, live_occupation_id=187, emails_final=2, phones_final=1. Occupation UPDATE matched zero rows and the association SELECT returned zero. Q2 already passed. The D-006 ROW_COUNT capture failed to establish affected rows (cause not proven); the Q6 guard consequently blocked the update. Actual before/after counts support one phone removed; check the earlier DELETE entry in Action Output for its affected count. Transaction commit/rollback state unknown. Do not repeat Q2 or import. No need to wait for another dispatch.
+
+**Field agent:** deliver the entire recovery SQL below and finalization steps in one concise response. In the SAME Workbench connection as D-006, if that transaction is still open, run the recovery block directly. Do NOT issue START TRANSACTION over an open transaction (it can implicitly commit). Only if D-006 has already been rolled back, committed, or the old connection closed, run START TRANSACTION first in the current connection. If uncertain, ask only whether the operator already committed/rolled back/disconnected. Stop on SQL errors and roll back any open recovery transaction. No other schema or unrelated data changes.
+
+The recovery accepts either the exact expected contact state (2 emails/1 surviving phone) or the clean state after rollback (0/0); it only recreates contacts in the latter case. It uses observed occupation ID 187 after checking the live name and uniqueness. Counts and exact values replace the unreliable ROW_COUNT variable. Execute all statements in order:
+
+```sql
+USE example1512O;
+SET @u = 'LAB1_DEMO_1125';
+
+SELECT (
+  @@SESSION.foreign_key_checks = 1
+  AND (SELECT COUNT(*) FROM users WHERE userid = @u
+       AND username = 'lab1_demo_1125' AND created IS NOT NULL) = 1
+  AND (SELECT COUNT(*) FROM information_schema.TABLES
+       WHERE TABLE_SCHEMA = DATABASE()
+       AND TABLE_NAME IN ('users','userEmail','userPhone')
+       AND ENGINE = 'InnoDB') = 3
+  AND (SELECT COUNT(*) FROM occupation
+       WHERE occupation = 'Computer Software Engineers') = 1
+  AND (SELECT COUNT(*) FROM occupation WHERE occupationId = 187
+       AND occupation = 'Computer Software Engineers') = 1
+) INTO @base_ok;
+
+SELECT (
+  @base_ok = 1
+  AND (SELECT COUNT(*) FROM userEmail WHERE userId = @u) = 0
+  AND (SELECT COUNT(*) FROM userPhone WHERE userId = @u) = 0
+  AND (SELECT COUNT(*) FROM userEmailType WHERE userEmailTypeId IN (1,3)) = 2
+  AND (SELECT COUNT(*) FROM userPhoneType WHERE userPhoneTypeId IN (1,2)) = 2
+) INTO @redo;
+
+-- Q3: only re-create if the earlier transaction was rolled back.
+INSERT INTO userEmail (userId,userEmail,userEmailTypeId)
+SELECT @u,'lab1.demo.personal@example.com',1 WHERE @redo = 1;
+INSERT INTO userEmail (userId,userEmail,userEmailTypeId)
+SELECT @u,'lab1.demo.school@example.com',3 WHERE @redo = 1;
+INSERT INTO userPhone (userId,userPhone,userPhoneTypeId)
+SELECT @u,'555-0101',1 WHERE @redo = 1;
+INSERT INTO userPhone (userId,userPhone,userPhoneTypeId)
+SELECT @u,'555-0102',2 WHERE @redo = 1;
+
+SELECT COUNT(*) AS emails_before_delete
+FROM userEmail WHERE userId = @u;
+SELECT COUNT(*) AS phones_before_delete
+FROM userPhone WHERE userId = @u;
+
+SELECT (
+  @base_ok = 1
+  AND (SELECT COUNT(*) FROM userEmail WHERE userId = @u) = 2
+  AND (SELECT COUNT(*) FROM userEmail WHERE userId = @u
+       AND userEmail = 'lab1.demo.personal@example.com' AND userEmailTypeId = 1) = 1
+  AND (SELECT COUNT(*) FROM userEmail WHERE userId = @u
+       AND userEmail = 'lab1.demo.school@example.com' AND userEmailTypeId = 3) = 1
+  AND (SELECT COUNT(*) FROM userPhone WHERE userId = @u
+       AND userPhone = '555-0101' AND userPhoneTypeId = 1) = 1
+) INTO @contacts_ok;
+
+-- Q4: required join and result count.
+SELECT u.lastname AS lastName,u.firstname AS firstName,
+       u.username AS userName,e.userEmail
+FROM users AS u INNER JOIN userEmail AS e ON u.userid = e.userId
+WHERE u.firstname = 'mary';
+SELECT COUNT(*) AS mary_join_rows
+FROM users AS u INNER JOIN userEmail AS e ON u.userid = e.userId
+WHERE u.firstname = 'mary';
+
+-- Q5: only delete if both expected phones are still present.
+SELECT (
+  @contacts_ok = 1
+  AND (SELECT COUNT(*) FROM userPhone WHERE userId = @u) = 2
+  AND (SELECT COUNT(*) FROM userPhone WHERE userId = @u
+       AND userPhone = '555-0102' AND userPhoneTypeId = 2) = 1
+) INTO @delete_pending;
+DELETE FROM userPhone
+WHERE userId = @u AND userPhone = '555-0102'
+  AND userPhoneTypeId = 2 AND @delete_pending = 1
+LIMIT 1;
+
+SELECT (
+  @contacts_ok = 1
+  AND (SELECT COUNT(*) FROM userPhone WHERE userId = @u) = 1
+  AND (SELECT COUNT(*) FROM userPhone WHERE userId = @u
+       AND userPhone = '555-0101' AND userPhoneTypeId = 1) = 1
+  AND (SELECT COUNT(*) FROM userPhone WHERE userId = @u
+       AND userPhone = '555-0102') = 0
+) INTO @phone_ok;
+
+-- Q6: correct the previously blocked update.
+SELECT * FROM occupation
+WHERE occupation = 'Computer Software Engineers';
+UPDATE users SET occupationId = 187
+WHERE userid = @u AND @base_ok = 1 AND @phone_ok = 1
+LIMIT 1;
+
+SELECT u.userid,u.occupationId,o.occupation
+FROM users AS u JOIN occupation AS o ON u.occupationId = o.occupationId
+WHERE u.userid = @u;
+
+SELECT @base_ok AS base_ok,@redo AS contacts_recreated,
+       @delete_pending AS delete_attempted,@phone_ok AS phone_pass,
+       (SELECT COUNT(*) FROM userEmail WHERE userId = @u) AS emails_final,
+       (SELECT COUNT(*) FROM userPhone WHERE userId = @u) AS phones_final,
+       (@base_ok = 1 AND @phone_ok = 1
+        AND (SELECT COUNT(*) FROM users WHERE userid = @u
+             AND occupationId = 187) = 1) AS ready_to_commit;
+```
+
+**Commit gate:** If no SQL errors, ready_to_commit=1, final contacts=2/1, occupation association shows 187 / Computer Software Engineers, and Action Output confirms the Q5 DELETE affected one row either in original D-006 or in this recovery (or mark exact count not independently observed and use documented before/after counts), run COMMIT in the same connection. Otherwise ROLLBACK and report the first blocker. Do not rerun mutations after commit. Verify final state with SELECT only. Q4 row count must be reported from the actual count query.
+
+**Finish now:** In a copy of IDBLab1.doc fill the student's name locally and paste the actual Q2 INSERT from D-005 (already passed), the four Q3 INSERTs from D-006 if retained or D-007 if recreated, Q4 JOIN, actual Q5 DELETE, Q6 occupation SELECT and successful UPDATE. Include required session variable definitions, or explicitly substitute the confirmed fictional user ID and remove execution-only guards in a clearly labeled equivalent answer; preserve exact executed SQL separately. Do not present the failed D-006 Q6 UPDATE as the successful statement. Q1: after commit, Workbench Server > Data Export > example1512O > all tables > Dump Structure and Data > Export to Self-Contained File; include triggers and relevant stored objects, export to a new file in output, verify success/nonzero size; ZIP if current LMS requires it. Do not overwrite the source. Restore test is optional QA beyond the worksheet, report NOT RUN if omitted. Review Word and SQL deliverables, follow course policy, student submits and checks LMS receipt.
+
+**Report:** Append one compact D-007 5W report to FSO/FSO-REPORT.md: actual D-006 failure (-1), whether rollback had occurred, actual recovery checks/commit, Q3 before counts, Q4 count, Q5 affected count or before/after evidence, Q6 association, Word and export status, LMS receipt. Preserve prior reports; verify commit. No student/private data or full result rows in public Git. No other writes. Historical orders below remain preserved.
+
 ## ACTIVE DISPATCH D-006 — complete ALL remaining IDB Lab 1 requirements (2026-11-25)
 
 **Read only this order.** This supersedes the old D-005 status in the RELOOK protocol. Coordinator observed Workbench screenshot: D-005/Q2 INSERT affected 1 row, duplicates 0, warnings 0, SELECT returned LAB1_DEMO_1125 / Alex Example / lab1_demo_1125 with created 2026-11-25 23:04:40. Q2 PASS; do not repeat. No further schema discovery or context loading unless a real error requires it. Use this same fictional lab user throughout. No new identity.
