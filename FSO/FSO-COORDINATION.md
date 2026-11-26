@@ -4,6 +4,38 @@
 **Use:** [coordination ADR](../docs/adr/0002-fso-coordination.md) · [existing branch handoff](FSO-ASSIGNMENT-HANDOFF.md).
 This is a branch-local coordination record, not a merged academic archive.
 
+## FIELD AGENT — READ THIS SECTION ONLY FIRST (2026-11-25)
+You are the coordinator's eyes and local execution assistant. Do not load GPT ADR, other projects, the entire academic archive, or older handoffs to reconstruct perspective. This section supplies your current order. Read further only for a specific missing fact. Use the actual instructor prompt and current course policy as authority. No private-to-public transfer, no instruction edits, no merge. Your only coordination write is an append to [FSO-REPORT.md](FSO-REPORT.md); the coordinator controls this dispatch file. The report is the response channel, not a new task ledger. Keep chat minimal.
+
+### D-001 — establish actual database state and finish import if needed
+- **Objective:** Verify the existing MySQL connection and whether the assignment schema is imported. Last report: setup and extraction done, import not verified. Do not restart installation or re-extract.
+- **Action:** In the existing Workbench SQL editor, ask the local operator to run the following read-only queries (or use an authorized tool if actually available):
+```sql
+SELECT VERSION() AS mysql_version;
+SELECT SCHEMA_NAME FROM information_schema.SCHEMATA
+WHERE SCHEMA_NAME = 'example1512O';
+SELECT TABLE_NAME, TABLE_TYPE FROM information_schema.TABLES
+WHERE TABLE_SCHEMA = 'example1512O' ORDER BY TABLE_NAME;
+```
+- **Branch on observation:** If schema has tables, check evidence of a complete import and expected table definitions; do not blindly re-import. If schema is absent/empty, confirm original dump and target selection; use Workbench Server > Data Import > Import from Self-Contained File, explicitly select/create the confirmed schema and import. Stop on the first meaningful error; retain its exact redacted message and do not retry over partially imported data.
+- **Evidence:** actual version, schema present/absent, tables present/count, import result/error if attempted, and whether required tables/triggers exist. Do not expose student records or credentials. Source files remain unchanged. Report real observations, not commands merely proposed.
+- **Exit:** Append a 5W report (100–180 words guideline) to FSO-REPORT.md with D-001, what was done, what is pending, and next action. Commit and verify; if no write capability, give the report in chat as NOT COMMITTED. If import is already complete, skip it and report the evidence. If blocked, send the blocker without filling gaps. Do not make unrelated changes.
+- **After reporting:** If a live result reveals a decision that needs schema-specific reasoning, return the report to the coordinator (user can say "FSO report"). Do not spin on broad research or request an entire new context.
+
+### Assignment execution map — only load the current item
+Use the actual assignment and local schema, not a reconstructed rubric or guessed IDs. After D-001, the coordinator can issue the next order based on the report. In the absence of a new order, only proceed with clearly authorized, fully specified, independently verifiable steps; stop when evidence or authorization is missing.
+| Gate | Task | Evidence to return |
+|---|---|---|
+| D-002 / Q2 | Inspect users definition, keys, defaults/triggers. Insert the required user, unique username, omit created. | Actual insert outcome; generated created; required fields and uniqueness checked. |
+| D-003 / Q3 | Inspect related table definitions and lookup constraints; add two email and two phone entries, omit generated IDs. | Actual counts for the intended user, valid keys. |
+| D-004 / Q4 | Run instructor-required join with exact requested columns/filter. | Column names and row count; no raw personal data in Git. |
+| D-005 / Q5 | Preview exact new-user phone target, delete only that row, verify. | One affected row and postcondition. |
+| D-006 / Q6 | Resolve specified occupation by exact name from live lookup, update intended user. | Actual affected count and verified association; no guessed IDs. |
+| D-007 / Q1 | Produce required SQL dump from verified state in the format required by actual rubric; test safe separate restore where feasible. | Export size/hash, ZIP/restore outcome, unresolved issues. |
+| D-008 | Reconcile written answers with actual results; student reviews and submits. | Rubric coverage, deliverables verified, LMS receipt status separately. |
+
+Read [report template](FSO-REPORT.md) only for writing the next short report. Keep the exact local commands/results in the authorized chat if needed; report only public-safe observations to Git. No asynchronous communication is implied. Coordinator must explicitly read the report in a later turn.
+
 ## Latest checkpoint — 2026-11-25
 
 **Intent:** Complete the actual database exercise, verify the six rubric items and prepare the required deliverables. Preserve the instructor's original source and avoid repeating setup.
