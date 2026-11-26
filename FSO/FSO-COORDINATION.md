@@ -4,6 +4,9 @@
 **Use:** [coordination ADR](../docs/adr/0002-fso-coordination.md) · [existing branch handoff](FSO-ASSIGNMENT-HANDOFF.md).
 This is a branch-local coordination record, not a merged academic archive.
 
+## Coordinator override — context exhaustion observed (2026-11-25)
+The operator supplied a screenshot of the field chat displaying Context window full while requesting the existing users definition. No new mutation result is visible. For this assignment, the coordinator now prepares the next SQL directly and the operator runs it in Workbench. Do not restart the field chat or reload continuity files just to obtain perspective. Preserve the existing D-003 answer map as reference. If a local assistant is used, give it only the current SQL/result task; its report should contain the observed outcome and blocker, not another full handoff. No claim of successful execution or measured token savings.
+
 ## CURRENT ORDER — D-003: recovered worksheet and draft validation (2026-11-25)
 **Read only this order.** Coordinator recovered and inspected both original Word worksheet copies and the earlier completed draft. Import is USER_REPORTED successful (R-001). Do not search other chats, repositories, or redo setup. Use the following condensed technical answer map to verify and fill the actual local Word worksheet. Preserve its original layout, paste the verified SQL under each question, enter the student's name locally, and follow course AI-use rules. If the prior draft is available, correct it; otherwise use a working copy of the original. This is a redacted operational summary, not a copy of the instructor document or private archive.
 
