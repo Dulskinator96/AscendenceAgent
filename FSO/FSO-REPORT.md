@@ -29,3 +29,14 @@ Aim for 100–180 words; do not omit critical evidence. Replace placeholders; do
 ```
 
 Append with current blob SHA and verify original bytes preserved, new report appears once, commit touches only this file. Do not edit previous reports or instructions. If safe write cannot be performed, return the completed report in the current chat marked NOT COMMITTED. No automatic notification or cross-chat execution is implied.
+
+### R-001 | D-001 | 2026-11-25 (local time not supplied)
+- **Who:** Local operator on Quasar, assisted through this conversation.
+- **What:** Completed the instructor SQL dump import into the assignment schema `example1512O` using MySQL Workbench.
+- **When:** 2026-11-25; exact completion time UNKNOWN. Workbench log showed the import attempt at 22:45:43; the operator subsequently reported success.
+- **Where:** Quasar Windows environment; MySQL Workbench; local source file `C:\\FSO\\IDB-Lab1\\source\\dbs_database.sql`.
+- **Why:** D-001 prerequisite for IDB Activity 1.2 / Lab 1.
+- **Done:** Operator reported import success after correcting the Data Import selection from the source directory to the actual `.sql` file and selecting the existing target schema. Earlier failed attempts reported path errors and SQL error 1007 because the schema already existed.
+- **Evidence:** USER_REPORTED success; Workbench log excerpt supplied in chat identifies the failed directory-path attempt and existing-schema error. No post-import table listing or runtime schema verification was collected; the operator requested that redundant verification stop.
+- **Blocked / not done:** Q2–Q6 have not been executed or verified. Final SQL export, ZIP integrity/restore, written-answer reconciliation, and LMS receipt remain unknown.
+- **Next:** Proceed directly to the next assignment step using the actual worksheet and imported schema; inspect only schema details needed to execute each required operation safely.
