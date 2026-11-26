@@ -4,6 +4,32 @@
 **Use:** [coordination ADR](../docs/adr/0002-fso-coordination.md) · [existing branch handoff](FSO-ASSIGNMENT-HANDOFF.md).
 This is a branch-local coordination record, not a merged academic archive.
 
+## ACTIVE SQL DISPATCH — D-004 / Q2 (2026-11-25)
+
+**Field agent: output the preserved SQL block below, not an explanation or another research task.** Read only this section (stop at the next heading). Use the student's existing local draft to substitute the five private values marked LOCAL and the locally approved gender value; do not invent them or publish them in Git. Confirm status/type IDs 1 and 1 against the existing local schema/lookup evidence before execution; these are draft candidates, not verified runtime facts. If evidence is missing, request only the necessary lookup/column detail. Do not repeat import or the already-successful SHOW CREATE TABLE/SHOW TRIGGERS checks. Never execute literal placeholders. Paste the resulting command as one SQL block for the operator in MySQL Workbench.
+
+```sql
+USE example1512O;
+
+INSERT INTO users
+(userid, firstname, lastname, middleName,
+ username, gender, userStatusId, userTypeId)
+SELECT
+ 'LOCAL_USER_ID', 'LOCAL_FIRST_NAME', 'LOCAL_LAST_NAME',
+ 'LOCAL_MIDDLE_NAME', 'LOCAL_USERNAME', 'LOCAL_GENDER', 1, 1
+WHERE NOT EXISTS (
+    SELECT 1 FROM users
+    WHERE userid = 'LOCAL_USER_ID'
+       OR username = 'LOCAL_USERNAME'
+);
+
+SELECT userid, username, created
+FROM users
+WHERE userid = 'LOCAL_USER_ID';
+```
+
+Preservation: coordinator's previous Q2 SQL structure retained; only private literal values are withheld from this public file. If an existing username belongs to a different user ID, or no intended row is returned, report BLOCKED rather than calling it a pass. On execution, record the insert affected-row count (Workbench Action Output), intended row returned, created populated or not, and any error. Append a short 5W D-004 result to FSO/FSO-REPORT.md; no raw personal values. If unable to commit, return the report in chat. Do not mark Q2 done merely because the SQL was displayed. No other file/branch writes. Earlier orders are retained as history; no reload required.
+
 ## Coordinator override — context exhaustion observed (2026-11-25)
 The operator supplied a screenshot of the field chat displaying Context window full while requesting the existing users definition. No new mutation result is visible. For this assignment, the coordinator now prepares the next SQL directly and the operator runs it in Workbench. Do not restart the field chat or reload continuity files just to obtain perspective. Preserve the existing D-003 answer map as reference. If a local assistant is used, give it only the current SQL/result task; its report should contain the observed outcome and blocker, not another full handoff. No claim of successful execution or measured token savings.
 
