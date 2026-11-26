@@ -4,6 +4,47 @@
 **Use:** [coordination ADR](../docs/adr/0002-fso-coordination.md) · [existing branch handoff](FSO-ASSIGNMENT-HANDOFF.md).
 This is a branch-local coordination record, not a merged academic archive.
 
+## CURRENT ORDER — D-003: recovered worksheet and draft validation (2026-11-25)
+**Read only this order.** Coordinator recovered and inspected both original Word worksheet copies and the earlier completed draft. Import is USER_REPORTED successful (R-001). Do not search other chats, repositories, or redo setup. Use the following condensed technical answer map to verify and fill the actual local Word worksheet. Preserve its original layout, paste the verified SQL under each question, enter the student's name locally, and follow course AI-use rules. If the prior draft is available, correct it; otherwise use a working copy of the original. This is a redacted operational summary, not a copy of the instructor document or private archive.
+
+**Important:** Prior draft SQL was written using the source schema; it was not executed on live MySQL. Prior ZIP passed archive integrity only. Earlier draft language implying submission is not supported by a receipt. Do not reuse that claim. Worksheet requires SQL statements, not mandatory screenshots; capture verification locally but do not add extra deliverables unless the LMS requires them. Reported deadline: Nov 25 at 11:59 PM EST; confirm current LMS instructions. Work efficiently.
+
+### Answer map — prior draft, not runtime evidence
+| Item | Verified worksheet requirement and prior draft approach | Local acceptance |
+|---|---|---|
+| Q1 (20) | Actual example database SQL backup. Original worksheet allows unzipped SQL; LMS reportedly asks for ZIP. No explicit pre/post-operation timing in worksheet. | Export real database; if a pre-change backup is still possible, preserve it locally; do not undo completed work. Verify requested final format. |
+| Q2 (16) | Insert into users, supplying userId and at least five other fields including unique username (max 20 chars); omit created. Draft used userid, firstname, lastname, middleName, username, gender, userStatusId, userTypeId. | Check exact live schema, FK values and existing intended user; insert only if absent; verify generated created. Prior draft used status/type 1/1, trigger usersCreatedDateInsert; confirm rather than assume. |
+| Q3 (16) | Four separate INSERTs: two emails using userEmail(userId,userEmail,userEmailTypeId); two phones using userPhone(userId,userPhone,userPhoneTypeId). Omit auto-increment IDs. | Use same user; validate lookup IDs first. Draft email types 1/3 and phone types 1/2 are candidates only. Verify two of each before Q5; don't duplicate existing records. |
+| Q4 (16) | JOIN users and userEmail on user ID. Return lastName, firstName, userName, userEmail only, for firstname mary. | Execute correct query, report output columns and row count, no personal result rows in Git. |
+| Q5 (16) | Delete a single one of the lab user's inserted phone records. Prior draft matched userId plus phone value and LIMIT 1. | Preview unique target (prefer confirmed phone primary key plus userId); check ROW_COUNT() immediately after DELETE and one intended phone remains. |
+| Q6 (16) | Two SQL statements: select every column for the specified occupation, then update the new user's occupationId. Prior draft candidate ID 187. | Find Computer Software Engineers by name in actual occupation table, verify one matching row and actual ID, update only intended user, confirm association. If already correct, report verified no-op. |
+
+### Minimal SQL guide (read-only first; no placeholder may be run literally)
+```sql
+USE example1512O;
+SHOW CREATE TABLE users;
+SHOW CREATE TABLE userEmail;
+SHOW CREATE TABLE userPhone;
+SHOW CREATE TABLE occupation;
+SHOW TRIGGERS;
+```
+Use existing confirmed lab user if present, otherwise choose student-approved values and check uniqueness. Prior draft's personal values are intentionally withheld from public Git. Q2 uses one INSERT with the eight columns above, then SELECT userid, username, created for the intended user. Q3 uses the three columns listed for each of the four INSERT statements. Verify actual constraints and lookup rows before mutations. Q4 draft query shape:
+```sql
+SELECT u.lastname AS lastName, u.firstname AS firstName,
+       u.username AS userName, e.userEmail
+FROM users AS u
+INNER JOIN userEmail AS e ON u.userid = e.userId
+WHERE u.firstname = 'mary';
+```
+Q5 use the actual confirmed phone ID and intended user, not an unbound placeholder or broad predicate. Q6 lookup shape: SELECT * FROM occupation WHERE occupation = 'Computer Software Engineers'; then use the observed unique occupationId and confirmed user ID in UPDATE. Recheck resulting association. Stop for actual SQL error/unsafe ambiguity; no schema changes or disabling constraints to force success. If progress already exists, validate it instead of repeating.
+
+### Finish and report
+Student fills name and verified SQL into the original worksheet copy (the draft is a reference, not evidence); ensure the six questions and exact statement counts are satisfied. Export genuine SQL from Workbench, package per LMS, review final documents. Restore check is additional quality assurance, not stated worksheet requirement; report if not performed and do not risk overwriting current schema. The student submits, and only actual receipt establishes submission.
+
+Append one compact 5W report tagged D-003 in FSO/FSO-REPORT.md, using next unused report ID. Include Q1–Q6 each OBSERVED PASS / REPORTED / BLOCKED / NOT RUN; statement counts, actual generated created status, contact counts before/after delete, join columns/count, occupation lookup count/ID and update postcondition, actual error if blocked. Include Word answers filled, export/ZIP status, receipt status and next concrete action. Keep names, IDs identifying the student, raw result rows, worksheet text, credentials and private links out of Git. No duplicate handoff or other repository writes. Preserve old bytes and verify report commit. If write fails, return report in chat marked NOT COMMITTED.
+
+Older orders below are history. This order supersedes D-002 and D-001. Coordinator has inspected the worksheet and prior draft directly; field agent should not spend context reconstructing them.
+
 ## CURRENT ORDER — D-002 (supersedes D-001, 2026-11-25)
 **Read this order only.** R-001 and the operator report successful import into example1512O. Accept as USER_REPORTED; do not repeat installation, extraction, import or general database verification. The next task is answering the actual Word worksheet using the imported database, not preparing another handoff. Work in the existing Workbench SQL editor. Follow actual instructor requirements and course AI-use policy.
 
