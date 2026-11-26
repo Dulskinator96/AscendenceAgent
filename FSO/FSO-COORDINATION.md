@@ -1,6 +1,6 @@
 # FSO coordination — active task and AI handoff
 
-**As of:** 2026-11-25 | **Task:** IDB Activity 1.2 / Lab 1 | **Status:** IN PROGRESS; import and runtime not verified.
+**As of:** 2026-11-25 | **Task:** IDB Activity 1.2 / Lab 1 | **Status:** IN PROGRESS; Q2 observed PASS; Q3–Q6, final export and submission pending.
 **Use:** [coordination ADR](../docs/adr/0002-fso-coordination.md) · [existing branch handoff](FSO-ASSIGNMENT-HANDOFF.md).
 This is a branch-local coordination record, not a merged academic archive.
 
@@ -9,7 +9,7 @@ When the operator says "relook", refresh this file at the current FSO-assignment
 
 For a SQL dispatch, return the exact supplied runnable SQL in one code block and one short execution instruction. Do not recap the assignment or ask for previously completed setup, unavailable drafts or additional research. If the operator has already executed the dispatch, collect its actual outcome rather than replaying it. After receiving results, append the requested compact evidence report to FSO/FSO-REPORT.md; preserve prior reports and verify the commit. If a report is already present for that execution, do not duplicate it. If blocked, report the exact redacted error. Do not change coordination instructions or other files.
 
-Current state: database access and required tables/trigger observed; Q2 execution is still unverified. D-005 below remains the active order. No new mutation is authorized by this protocol itself. Future coordinator orders will be inserted immediately below this protocol; historical dispatches are inactive. If a completed dispatch has no successor, report its status without rerunning it. Keep responses concise to conserve context. No automatic inter-chat messaging is implied; "relook" is the manual refresh trigger.
+Current state: Q2 observed PASS. D-006 immediately below is the only active order, covering all remaining work. D-005 and earlier orders are historical; do not replay them. No new mutation is authorized by this protocol itself. Future coordinator orders will be inserted immediately below this protocol; historical dispatches are inactive. If a completed dispatch has no successor, report its status without rerunning it. Keep responses concise to conserve context. No automatic inter-chat messaging is implied; "relook" is the manual refresh trigger.
 
 ## ACTIVE DISPATCH D-006 — complete ALL remaining IDB Lab 1 requirements (2026-11-25)
 
@@ -170,6 +170,9 @@ WHERE @@SESSION.foreign_key_checks = 1
 Append one compact 5W report for D-006 to FSO/FSO-REPORT.md, including D-005/Q2 observed result, actual Q3 email/phone counts before deletion, Q4 four columns and count, Q5 affected count and surviving phone count, Q6 actual occupation ID and association, transaction committed/rolled back, Word completed status, SQL export size/format, restore status and LMS receipt status. If blocked, record exact redacted error and next single action. No raw personal result rows, student identifiers or course documents in Git. Verify report commit; if no write access, return report in chat. Do not duplicate historical handoffs. Coordinator may review after user requests it; no new dispatch needed between successful steps.
 
 ## ACTIVE DISPATCH D-005 — Q2 command delivery (2026-11-25)
+> Historical status before D-006 (retained): **Status:** IN PROGRESS; import and runtime not verified.
+> Current state: database access and required tables/trigger observed; Q2 execution is still unverified. D-005 below remains the active order.
+
 Read ONLY this section. D-004 is superseded because it required unavailable private values. The coordinator supplies fictional lab data below; the worksheet requires a new user, not the student's personal identity in the database. The student enters their own name in the Word worksheet separately. Use this same lab identity throughout Q2–Q6. Do not create another identity if an earlier Q2 was actually executed; report that case instead.
 
 **Field agent response:** reproduce the following SQL exactly in one code block, tell the operator to run it in the existing MySQL Workbench SQL editor, and request the result. Do not research, summarize, reconstruct, ask for a draft, or reload prior instructions. Schema access and the users INSERT trigger were already observed. No literal placeholders. Candidate lookup IDs are tested by the INSERT predicates below; the two lookup table names follow the conventional schema and are not yet runtime-confirmed. If either is missing or any SQL error occurs, report the exact redacted error; do not guess a replacement. The existing database must have foreign key checks enabled. No schema changes.
