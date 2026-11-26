@@ -9,6 +9,11 @@ This is a branch-local coordination record, not a merged academic archive.
 
 **Important:** Prior draft SQL was written using the source schema; it was not executed on live MySQL. Prior ZIP passed archive integrity only. Earlier draft language implying submission is not supported by a receipt. Do not reuse that claim. Worksheet requires SQL statements, not mandatory screenshots; capture verification locally but do not add extra deliverables unless the LMS requires them. Reported deadline: Nov 25 at 11:59 PM EST; confirm current LMS instructions. Work efficiently.
 
+### D-003 progress update — 2026-11-25 22:57
+**OBSERVED (operator's Workbench photo):** USE example1512O and SHOW CREATE TABLE for users, userEmail, userPhone and occupation all succeeded; each definition query returned one row. SHOW TRIGGERS returned two rows, including usersCreatedDateInsert (BEFORE INSERT on users). This establishes access to the required tables and trigger, not completeness of all imported data or executed lab mutations. The displayed trigger statement is truncated; do not assert its full body. No Q2–Q6 mutations or export are evidenced yet.
+
+**Next:** Do not repeat the six schema queries. The four existing Workbench result tabs contain their definitions: inspect Result 1 (users), Result 2 (userEmail), Result 3 (userPhone), Result 4 (occupation) for exact columns, defaults, PKs and FK references; copy the relevant DDL into the authorized chat if needed. Resolve actual lookup IDs and check the intended unique user before Q2. If absent, execute the verified Q2 INSERT, omitting created, and confirm the row and generated timestamp. Proceed through the remaining D-003 map as authorized. Record actual evidence in the existing Word worksheet and append the short field report; no raw student data in public Git. This update supersedes the earlier import-only status; do not restart the import.
+
 ### Answer map — prior draft, not runtime evidence
 | Item | Verified worksheet requirement and prior draft approach | Local acceptance |
 |---|---|---|
