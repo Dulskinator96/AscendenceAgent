@@ -173,3 +173,59 @@ Do not restart the installation process. Do not re-extract or overwrite the sour
 ## Update log
 
 - **2026-11-25:** Created from the active conversation and prior Quasar machine-profile context. Recorded the installed MySQL/Workbench state, successful Workbench connection, current schemas, extracted assignment files, exact local paths, and remaining import/assignment/submission work. Explicitly marked all unperformed steps as pending.
+
+
+## 10. Cross-chat reconciliation — 2026-11-25
+
+This section supersedes earlier uncertainty in this handoff about the assignment's database identity and records the authoritative cross-chat references. It does **not** claim that the local database has been imported or that assignment operations have run.
+
+### Canonical cross-chat sources
+
+The user directed the receiving AI to consult the GPT cross-chat continuity records in the separate private repository:
+
+- **Repository:** `Dulskinator96/AscendenceAgent007`
+- **Branch:** `FSO_FullSailUniversity`
+- **Canonical GPT continuity ADR:** [`docs/gpt/ADR-0001-GPT-CROSS-CHAT-CONTINUITY.md`](https://github.com/Dulskinator96/AscendenceAgent007/blob/FSO_FullSailUniversity/docs/gpt/ADR-0001-GPT-CROSS-CHAT-CONTINUITY.md)
+- **IDB assignment handoff:** [`FSO_FullSailUniversity/courses/IDB-INTRODUCTION-TO-DATABASES-IDENTITY-PENDING.md`](https://github.com/Dulskinator96/AscendenceAgent007/blob/FSO_FullSailUniversity/FSO_FullSailUniversity/courses/IDB-INTRODUCTION-TO-DATABASES-IDENTITY-PENDING.md)
+- **Special database evidence ADR:** [`FSO_FullSailUniversity/adrs/ADR-0005-IDB-LAB1-DUMP-AND-RUNTIME-EVIDENCE.md`](https://github.com/Dulskinator96/AscendenceAgent007/blob/FSO_FullSailUniversity/FSO_FullSailUniversity/adrs/ADR-0005-IDB-LAB1-DUMP-AND-RUNTIME-EVIDENCE.md)
+
+The continuity ADR requires an incoming AI to observe first, fetch the current repository sources, preserve evidence classifications, and distinguish prepared artifacts from executed work. Cross-chat synchronization is manual; this handoff is a pointer and reconciliation record, not an assertion of automatic synchronization.
+
+### Assignment facts established by the cross-chat records
+
+- **Target schema:** `example1512O` (last character is capital letter O).
+- **Assignment:** IDB Activity 1.2 — Lab 1.
+- **Original instructor archive:** `DBS_example_Database_2015.zip`.
+- **Original SQL source:** `dbs_database.sql`, approximately 171 MB; archive provenance identifies Sequel Pro 4499 / MySQL 5.5.42 and generation date 2015-11-24.
+- **Six rubric tasks:** (Q1) database dump; (Q2) insert a user with userId plus at least five other columns, include unique username, omit `created`; (Q3) insert two email and two phone rows without supplying auto-increment IDs; (Q4) INNER JOIN returning lastName, firstName, userName, userEmail for firstname Mary; (Q5) delete exactly one phone row; (Q6) query occupation `Computer Software Engineers` and update the user's occupation foreign key.
+- **Prepared identity values in a prior artifact:** userId `FSO20261124DULSKY` and username `dulsky_idb_lab1`. Treat these as previously prepared draft values, not proof of rows in the current Quasar database.
+- **Occupation ID 187:** appears in a prior prepared answer, but the cross-chat handoff explicitly says it requires database verification. Do not use it without checking the live lookup table.
+
+### Previously prepared deliverables — separate from Quasar runtime proof
+
+The cross-chat assignment handoff reports that on 2026-11-24 these artifacts were created and inspected in a prior workflow:
+
+- `IDBLab1_Completed.docx` (approximately 38 KB), containing draft answers for all six questions.
+- `IDBLab1_Database_Dump.zip` (approximately 39 MB), containing `IDBLab1_database.sql` (approximately 171 MB).
+
+The ZIP CRC passed, but its SQL is an altered copy of the instructor export with proposed lab SQL appended. It is **not** a post-CRUD export from a running database and has **not** been independently restored. Do not recreate these artifacts automatically; first locate and inspect the existing files if they are needed. Their presence in another workflow does not establish that they exist under this Quasar machine's `output` directory.
+
+### Current Quasar session evidence — 2026-11-25
+
+- MySQL Server 8.0.46 and Workbench are installed; Workbench connection succeeded.
+- The reported `SHOW DATABASES` output did not include `example1512O`.
+- The user inspected the SQL dump's table-definition area; the visible excerpt showed a `dvd` table definition.
+- The inspection command searched for lines beginning `CREATE DATABASE` or `USE ` and returned no matches. Therefore the import must explicitly target the confirmed schema `example1512O`; the dump does not appear to select it itself.
+- **Import into Quasar: NOT YET VERIFIED.** No successful import output, `SHOW TABLES` from `example1512O`, or row checks have been supplied.
+
+### Correct next operation
+
+Continue from the existing Quasar MySQL Workbench connection. If `example1512O` has not yet been created, create it once; then import the unchanged source file `C:\\FSO\\IDB-Lab1\\source\\dbs_database.sql` into that schema. Do not re-run installation, re-extraction, or connection setup. After import, verify tables and relevant triggers/lookup rows before running Q2–Q6.
+
+### Evidence lifecycle and submission boundary
+
+Maintain this sequence as separate evidence gates:
+
+`original instructor dump → imported sandbox database → executed Q2–Q6 statements → observed row/trigger results → genuine post-operation SQL export → independent restore check → FSO upload receipt`.
+
+The prior handoff reports the LMS overview requests a zipped SQL dump while the original worksheet says a .sql file need not be zipped; preserve both source instructions and do not claim the conflict was resolved. FSO submission and grade remain **UNKNOWN** until the user supplies a receipt or grade evidence.
