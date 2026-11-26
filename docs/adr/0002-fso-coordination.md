@@ -17,3 +17,6 @@ Preserve original instructor files; verify target schema and live SQL before mut
 
 ## Acceptance
 The next AI can locate the current task, avoid repeating verified setup, identify the next unverified gate, and explain what evidence will advance it. No existing file or other branch is modified to establish this coordination contract. This is documentation, not a completed runtime test.
+
+## Write-authority clarification
+The coordination file is available for read-only recovery by restricted models. The proposed checkpoint destination above does not override an existing restricted-model allowlist: until that allowlist is explicitly amended by the owner/authorized maintainer, restricted models append only to their already-permitted FSO assignment handoff and may propose coordination checkpoints for an authorized maintainer to apply. No governing instruction in another branch or repository was changed here.
