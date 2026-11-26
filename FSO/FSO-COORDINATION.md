@@ -4,6 +4,13 @@
 **Use:** [coordination ADR](../docs/adr/0002-fso-coordination.md) · [existing branch handoff](FSO-ASSIGNMENT-HANDOFF.md).
 This is a branch-local coordination record, not a merged academic archive.
 
+## RELOOK — field-agent communication protocol (2026-11-25)
+When the operator says "relook", refresh this file at the current FSO-assignment branch revision. Read this short protocol and the first current dispatch immediately below; stop at its next level-two heading. Do not read historical orders, GPT ADRs, other repositories or unrelated files. The coordination file is the coordinator's outgoing message; FSO/FSO-REPORT.md is the field agent's incoming report. The operator is not responsible for relaying technical instructions.
+
+For a SQL dispatch, return the exact supplied runnable SQL in one code block and one short execution instruction. Do not recap the assignment or ask for previously completed setup, unavailable drafts or additional research. If the operator has already executed the dispatch, collect its actual outcome rather than replaying it. After receiving results, append the requested compact evidence report to FSO/FSO-REPORT.md; preserve prior reports and verify the commit. If a report is already present for that execution, do not duplicate it. If blocked, report the exact redacted error. Do not change coordination instructions or other files.
+
+Current state: database access and required tables/trigger observed; Q2 execution is still unverified. D-005 below remains the active order. No new mutation is authorized by this protocol itself. Future coordinator orders will be inserted immediately below this protocol; historical dispatches are inactive. If a completed dispatch has no successor, report its status without rerunning it. Keep responses concise to conserve context. No automatic inter-chat messaging is implied; "relook" is the manual refresh trigger.
+
 ## ACTIVE DISPATCH D-005 — Q2 command delivery (2026-11-25)
 Read ONLY this section. D-004 is superseded because it required unavailable private values. The coordinator supplies fictional lab data below; the worksheet requires a new user, not the student's personal identity in the database. The student enters their own name in the Word worksheet separately. Use this same lab identity throughout Q2–Q6. Do not create another identity if an earlier Q2 was actually executed; report that case instead.
 
