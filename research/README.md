@@ -4,6 +4,20 @@
 
 This compartment is for academic collaborators interested in developing a reproducible investigation that could lead to a jointly written research paper. The research question and contributions are open to discussion. No model-transfer exercise, codename or agent setup is required. Other repository branches and their experiments are independent.
 
+## Research workspace and progression
+
+Each phase has its own working directory and fillable record. The files are scaffolds for shared decisions, not completed research.
+
+| Phase | Working record | Current status |
+|---|---|---|
+| 1. Discovery | [Question, literature, gap and feasibility](01-discovery/README.md) | Open for joint discussion |
+| 2. Methodology | [Protocol, hypotheses, cases and analysis plan](02-methodology/README.md) | Draft template |
+| 3. Experimentation | [Reproduction and run evidence](03-experimentation/README.md) | Not started |
+| 4. Analysis | [Outcomes, uncertainty and limitations](04-analysis/README.md) | Not started |
+| 5. Publication | [Manuscript plan and author decisions](05-publication/README.md) | Not started |
+
+Start with Phase 1, then complete the relevant records through scoped PRs to this branch. The phase completion criteria guide research integrity, not contributor admission. Revisit earlier phases when evidence requires it; record dated protocol deviations. No mandatory codename, unrelated exercise or fixed research topic.
+
 ## Proposed starting question
 
 Can targeted external verification improve the factual fidelity of AI-assisted scientific writing while preserving correct content and reducing unnecessary revision, compared with unassisted generation or model-only self-correction?
