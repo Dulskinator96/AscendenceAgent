@@ -2,6 +2,8 @@
 
 **Start here. This branch is dedicated to deterministic transition verification.** Contributors can propose or implement cases directly. No codename exercise, AI-to-AI transfer, gate demonstration, model, API key, or knowledge-transfer prerequisite is required. The separate collaboration branch remains unchanged.
 
+**Dedicated research compartment:** [benchmark/README.md](benchmark/README.md) — case submission format, expected state and violation sets, and joint evaluation protocol. Begin directly with a case proposal.
+
 ## Research question
 On identical deterministic state-transition sequences, can an affected-constraint verifier detect the same inconsistencies as full-state verification, at lower computational cost? This is a question to test, not an established result.
 
